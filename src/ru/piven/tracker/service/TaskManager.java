@@ -3,16 +3,28 @@ package ru.piven.tracker.service;
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
-
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TaskManager {
-    public HashMap<Integer, Task> tasks;
-    public HashMap<Integer, SubTask> subTasks;
-    public HashMap<Integer, Epic> epics;
+    private HashMap<Integer, Task> tasks;
+    private HashMap<Integer, SubTask> subTasks;
+    private HashMap<Integer, Epic> epics;
+    private AtomicInteger idCounter = new AtomicInteger(1);
 
-    Integer idCounter = 1;
+    public HashMap<Integer, Task> getTasks() {
+        return tasks;
+    }
+
+    public HashMap<Integer, SubTask> getSubTasks() {
+        return subTasks;
+    }
+
+    public HashMap<Integer, Epic> getEpics() {
+        return epics;
+    }
 
     public TaskManager() {
         tasks = new HashMap<>();
@@ -21,12 +33,8 @@ public class TaskManager {
     }
 
 
-    public ArrayList<Task> getAllTasks() {
-        ArrayList<Task> tempTasks = new ArrayList<>();
-        for (Integer key : tasks.keySet()) {
-            tempTasks.add(tasks.get(key));
-        }
-        return tempTasks;
+    public Collection<Task> getAllTasks() {
+        return tasks.values();
     }
 
     public void removeAllTasks() {
@@ -34,16 +42,13 @@ public class TaskManager {
     }
 
     public Task getTask(int taskId) {
-        if (tasks.containsKey(taskId)) {
-            return tasks.get(taskId);
-        } else {
-            return null;
-        }
+        return tasks.getOrDefault(taskId, null);
     }
 
     public void addTask(Task task) {
-        tasks.put(idCounter, task);
-        idCounter++;
+        Integer id = idCounter.getAndIncrement();
+        task.setId(id);
+        tasks.put(id, task);
     }
 
     public void updateTask(int taskId, Task task) {
@@ -57,12 +62,8 @@ public class TaskManager {
     }
 
 
-    public ArrayList<SubTask> getAllSubTask() {
-        ArrayList<SubTask> tempSubTasks = new ArrayList<>();
-        for (Integer key : subTasks.keySet()) {
-            tempSubTasks.add(subTasks.get(key));
-        }
-        return tempSubTasks;
+    public Collection<SubTask> getAllSubTask() {
+        return subTasks.values();
     }
 
     public void removeAllSubTasks() {
@@ -70,11 +71,7 @@ public class TaskManager {
     }
 
     public SubTask getSubTask(int subTaskId) {
-        if (subTasks.containsKey(subTaskId)) {
-            return subTasks.get(subTaskId);
-        } else {
-            return null;
-        }
+        return subTasks.getOrDefault(subTaskId, null);
     }
 
     //Подразумеваем, что при создании подзадачи укажут к какому эпику она принадлежит
@@ -82,11 +79,11 @@ public class TaskManager {
     //в список подзадач эпика.
     public void addSubTask(SubTask subTask, Integer epicId) {
         if (epics.containsKey(epicId)) {
+            int id = idCounter.getAndIncrement();
             subTask.setEpicId(epicId);
-            epics.get(epicId).addSubTask(idCounter);
-            subTasks.put(idCounter, subTask);
+            epics.get(epicId).addSubTask(id);
+            subTasks.put(id, subTask);
             handleEpicStatus(epicId);
-            idCounter++;
         }
     }
 
@@ -101,34 +98,35 @@ public class TaskManager {
 
     public void removeSubTask(int subTaskId) {
         if (subTasks.containsKey(subTaskId)) {
+            int epicId = subTasks.get(subTaskId).getEpicId();
+            //удаление сабтаски из ее эпика
+            epics.get(epicId).removeSubTask(subTaskId);
             subTasks.remove(subTaskId);
         }
     }
 
-    public ArrayList<Epic> getAllEpics() {
-        ArrayList<Epic> tempEpics = new ArrayList<>();
-        for (Integer key : epics.keySet()) {
-            tempEpics.add(epics.get(key));
-        }
-        return tempEpics;
+    public Collection<Epic> getAllEpics() {
+        return epics.values();
     }
 
     public void removeAllEpics() {
+        for (Epic epic: epics.values()){
+            ArrayList<Integer> subTaskIds = epic.getSubTasksIds();
+            for (Integer subTaskId :subTaskIds){
+                removeSubTask(subTaskId);
+            }
+        }
         epics.clear();
     }
 
     public Epic getEpic(int epicId) {
-        if (epics.containsKey(epicId)) {
-            return epics.get(epicId);
-        } else {
-            return null;
-        }
+        return epics.getOrDefault(epicId, null);
     }
 
-    //При добавлении нового эпика список подзадач будет пуст
     public void addEpic(Epic epic) {
-        epics.put(idCounter, epic);
-        idCounter++;
+        int id = idCounter.getAndIncrement();
+        epic.setId(id);
+        epics.put(id, epic);
     }
 
     public void updateEpic(int epicId, Epic epic) {
@@ -139,6 +137,10 @@ public class TaskManager {
 
     public void removeEpic(int epicId) {
         if (epics.containsKey(epicId)) {
+            ArrayList<Integer> subTaskIds = epics.get(epicId).getSubTasksIds();
+            for (Integer subTaskId :subTaskIds){
+                removeSubTask(subTaskId);
+            }
             epics.remove(epicId);
         }
     }
@@ -152,7 +154,7 @@ public class TaskManager {
         return tempSubTasks;
     }
 
-    public void handleEpicStatus(int epicId) {
+    private void handleEpicStatus(int epicId) {
         Status status = Status.IN_PROGRESS;
         boolean doneFlag = true;
         boolean newFlag = true;
@@ -162,8 +164,6 @@ public class TaskManager {
             if (subTask.getStatus() != Status.DONE) {
                 doneFlag = false;
             }
-        }
-        for (SubTask subTask : tempSubTasks) {
             if (subTask.getStatus() != Status.NEW) {
                 newFlag = false;
             }

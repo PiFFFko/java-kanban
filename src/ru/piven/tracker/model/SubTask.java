@@ -3,7 +3,15 @@ package ru.piven.tracker.model;
 import ru.piven.tracker.service.Status;
 
 public class SubTask extends Task {
-    int epicId;
+    private int epicId;
+
+    public SubTask(String name, String description) {
+        super(name, description);
+    }
+
+    public SubTask(String name, String description,Status status) {
+        super(name, description,status);
+    }
 
     public int getEpicId() {
         return epicId;
@@ -11,10 +19,6 @@ public class SubTask extends Task {
 
     public void setEpicId(int epicId) {
         this.epicId = epicId;
-    }
-
-    public SubTask(String name, String description, Status status) {
-        super(name, description, status);
     }
 
     @Override

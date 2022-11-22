@@ -5,21 +5,29 @@ import ru.piven.tracker.service.Status;
 import java.util.ArrayList;
 
 public class Epic extends Task {
-    ArrayList<Integer> subTasksIds;
+    private ArrayList<Integer> subTasksIds;
+
+    public Epic(String name, String description) {
+        super(name, description);
+        subTasksIds = new ArrayList<>();
+    }
+
+    public Epic(String name, String description,Status status) {
+        super(name, description,status);
+        subTasksIds = new ArrayList<>();
+    }
 
     public ArrayList<Integer> getSubTasksIds() {
         return subTasksIds;
     }
 
-    public Epic(String name, String description, Status status) {
-        super(name, description, status);
-        subTasksIds = new ArrayList<>();
+    public void addSubTask(Integer subTaskId) {
+        subTasksIds.add(subTaskId);
     }
 
-    public void addSubTask(Integer id) {
-        subTasksIds.add(id);
+    public void removeSubTask(Integer subTaskId){
+        subTasksIds.remove(subTaskId);
     }
-
     @Override
     public String toString() {
         return "Epic{" +
