@@ -3,16 +3,19 @@ package ru.piven.tracker.service;
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class InMemoryTaskManager implements TaskManager{
+public class InMemoryTaskManager implements TaskManager {
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, SubTask> subTasks;
     private HashMap<Integer, Epic> epics;
     private AtomicInteger idCounter = new AtomicInteger(1);
+    private List<Task> history;
 
     public HashMap<Integer, Task> getTasks() {
         return tasks;
@@ -30,6 +33,7 @@ public class InMemoryTaskManager implements TaskManager{
         tasks = new HashMap<>();
         subTasks = new HashMap<>();
         epics = new HashMap<>();
+        history = new ArrayList<>();
     }
 
 
@@ -42,7 +46,9 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     public Task getTask(int taskId) {
-        return tasks.getOrDefault(taskId, null);
+        Task task = tasks.getOrDefault(taskId, null);
+        addTaskToHistory(task);
+        return task;
     }
 
     public void addTask(Task task) {
@@ -61,7 +67,6 @@ public class InMemoryTaskManager implements TaskManager{
             tasks.remove(taskId);
     }
 
-
     public Collection<SubTask> getAllSubTask() {
         return subTasks.values();
     }
@@ -71,7 +76,9 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     public SubTask getSubTask(int subTaskId) {
-        return subTasks.getOrDefault(subTaskId, null);
+        SubTask subTask = subTasks.getOrDefault(subTaskId, null);
+        addTaskToHistory(subTask);
+        return subTask;
     }
 
     //Подразумеваем, что при создании подзадачи укажут к какому эпику она принадлежит
@@ -81,6 +88,7 @@ public class InMemoryTaskManager implements TaskManager{
         if (epics.containsKey(epicId)) {
             int id = idCounter.getAndIncrement();
             subTask.setEpicId(epicId);
+            subTask.setId(id);
             epics.get(epicId).addSubTask(id);
             subTasks.put(id, subTask);
             handleEpicStatus(epicId);
@@ -110,9 +118,9 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     public void removeAllEpics() {
-        for (Epic epic: epics.values()){
+        for (Epic epic : epics.values()) {
             ArrayList<Integer> subTaskIds = epic.getSubTasksIds();
-            for (Integer subTaskId :subTaskIds){
+            for (Integer subTaskId : subTaskIds) {
                 removeSubTask(subTaskId);
             }
         }
@@ -120,7 +128,9 @@ public class InMemoryTaskManager implements TaskManager{
     }
 
     public Epic getEpic(int epicId) {
-        return epics.getOrDefault(epicId, null);
+        Epic epic = epics.getOrDefault(epicId, null);
+        addTaskToHistory(epic);
+        return epic;
     }
 
     public void addEpic(Epic epic) {
@@ -138,7 +148,7 @@ public class InMemoryTaskManager implements TaskManager{
     public void removeEpic(int epicId) {
         if (epics.containsKey(epicId)) {
             ArrayList<Integer> subTaskIds = epics.get(epicId).getSubTasksIds();
-            for (Integer subTaskId :subTaskIds){
+            for (Integer subTaskId : subTaskIds) {
                 removeSubTask(subTaskId);
             }
             epics.remove(epicId);
@@ -175,5 +185,19 @@ public class InMemoryTaskManager implements TaskManager{
         }
         epic.setStatus(status);
     }
+
+    public List<Task> getHistory() {
+
+        return history;
+    }
+
+    public void addTaskToHistory(Task task) {
+        if (history.size() >= 10){
+            history.remove(0);
+            history.add(task);
+            return;
+        } else history.add(task);
+    }
+
 
 }

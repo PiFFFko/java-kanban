@@ -6,6 +6,7 @@ import ru.piven.tracker.model.Task;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public interface TaskManager {
     public Collection<Task> getAllTasks();
@@ -45,6 +46,8 @@ public interface TaskManager {
     public void removeEpic(int epicId);
 
     public ArrayList<SubTask> getEpicSubTasks(int epicId);
+
+    public List<Task> getHistory();
 
 }
 
