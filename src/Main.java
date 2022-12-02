@@ -30,7 +30,7 @@ public class Main {
         tm.getEpic(2);
         tm.getSubTask(3);
         //шесть записей находится в истории
-        System.out.println(tm.getHistory());
+        System.out.println(tm.historyManager.getHistory());
         //добавляем еще шесть записей в историю
         //итоговая последовательность должна быть 1,3,2,1,2,3,2,1,3,3,1,2
         //Отсекая последние десять должно получиться 2,1,2,3,2,1,3,3,1,2
@@ -40,7 +40,7 @@ public class Main {
         tm.getSubTask(3);
         tm.getTask(1);
         tm.getEpic(2);
-        System.out.println(tm.getHistory());
+        System.out.println(tm.historyManager.getHistory());
 
     }
 
