@@ -2,7 +2,7 @@ import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
 import ru.piven.tracker.service.Status;
-import ru.piven.tracker.service.TaskManager;
+import ru.piven.tracker.service.InMemoryTaskManager;
 
 public class Main {
 
@@ -14,7 +14,7 @@ public class Main {
         SubTask subTask3 = new SubTask("Я не знаю какие задачи еще придумать","Пусто");
         Epic epic1 = new Epic("Утренний ритуал","То что делаешь каждое утро");
         Epic epic2 = new Epic("Тест","Тест");
-        TaskManager tm = new TaskManager();
+        InMemoryTaskManager tm = new InMemoryTaskManager();
         tm.addTask(task1);
         tm.addTask(task2);
         tm.addEpic(epic1);
