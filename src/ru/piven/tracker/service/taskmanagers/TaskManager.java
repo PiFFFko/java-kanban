@@ -1,4 +1,4 @@
-package ru.piven.tracker.service;
+package ru.piven.tracker.service.taskmanagers;
 
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;

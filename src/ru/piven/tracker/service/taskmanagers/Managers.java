@@ -1,4 +1,7 @@
-package ru.piven.tracker.service;
+package ru.piven.tracker.service.taskmanagers;
+
+import ru.piven.tracker.service.history.HistoryManager;
+import ru.piven.tracker.service.history.InMemoryHistoryManager;
 
 public class Managers {
 

@@ -2,17 +2,59 @@ import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
 import ru.piven.tracker.service.Status;
-import ru.piven.tracker.service.InMemoryTaskManager;
-
-import java.util.ArrayList;
-import java.util.List;
+import ru.piven.tracker.service.taskmanagers.InMemoryTaskManager;
 
 public class Main {
 
     public static void main(String[] args) {
-        testSprint4GetHistory();
+        testSprint5();
     }
 
+
+    public static void testSprint5(){
+        Task task1 = new Task("Убраться в квартире","Подмести и помыть полы, убрать мусор");
+        Task task2 = new Task("Покормить кису","Корм в кладовке насыпать жвотине в миску");
+        SubTask subTask1 = new SubTask("Почистить зубы","Чисто, чисто, чисто");
+        SubTask subTask2 = new SubTask("Позавтракать","Яишенка с беконом и помидорами - топ!");
+        SubTask subTask3 = new SubTask("Я не знаю какие задачи еще придумать","Пусто");
+        Epic epic1 = new Epic("Утренний ритуал","То что делаешь каждое утро");
+        Epic epic2 = new Epic("Тест","Тест");
+        InMemoryTaskManager tm = new InMemoryTaskManager();
+        System.out.println("\n" + tm.historyManager.getHistory());
+        tm.addTask(task1);
+        tm.addTask(task2);
+        tm.addEpic(epic1);
+        tm.addEpic(epic2);
+        tm.addSubTask(subTask1,3);
+        tm.addSubTask(subTask2,3);
+        tm.addSubTask(subTask3,3);
+        tm.getTask(1);
+        tm.getTask(2);
+        tm.getTask(1);
+        tm.getTask(2);
+        tm.getTask(1);
+        System.out.println("\n" + tm.historyManager.getHistory());
+        tm.getSubTask(5);
+        tm.getSubTask(6);
+        tm.getSubTask(7);
+        tm.getSubTask(7);
+        tm.getSubTask(6);
+        tm.getSubTask(5);
+        System.out.println("\n" + tm.historyManager.getHistory());
+        tm.getEpic(3);
+        tm.getEpic(4);
+        tm.getEpic(4);
+        tm.getEpic(3);
+        System.out.println("\n" + tm.historyManager.getHistory());
+        tm.removeTask(1);
+        tm.removeSubTask(5);
+        tm.removeEpic(4);
+        System.out.println("\n" + tm.historyManager.getHistory());
+        tm.removeEpic(3);
+        System.out.println("\n" + tm.historyManager.getHistory());
+        tm.removeTask(2);
+        System.out.println("\n" + tm.historyManager.getHistory());
+    }
 
     public static void testSprint4GetHistory(){
         Task task1 = new Task("Убраться в квартире","Подмести и помыть полы, убрать мусор");

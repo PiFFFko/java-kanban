@@ -1,8 +1,10 @@
-package ru.piven.tracker.service;
+package ru.piven.tracker.service.taskmanagers;
 
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
+import ru.piven.tracker.service.Status;
+import ru.piven.tracker.service.history.HistoryManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,11 +13,18 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTaskManager implements TaskManager {
+    public HistoryManager historyManager;
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, SubTask> subTasks;
     private HashMap<Integer, Epic> epics;
     private AtomicInteger idCounter = new AtomicInteger(1);
-    public HistoryManager historyManager;
+
+    public InMemoryTaskManager() {
+        tasks = new HashMap<>();
+        subTasks = new HashMap<>();
+        epics = new HashMap<>();
+        historyManager = Managers.getDefaultHistory();
+    }
 
     public HashMap<Integer, Task> getTasks() {
         return tasks;
@@ -29,19 +38,14 @@ public class InMemoryTaskManager implements TaskManager {
         return epics;
     }
 
-    public InMemoryTaskManager() {
-        tasks = new HashMap<>();
-        subTasks = new HashMap<>();
-        epics = new HashMap<>();
-        historyManager = Managers.getDefaultHistory();
-    }
-
-
     public Collection<Task> getAllTasks() {
         return tasks.values();
     }
 
     public void removeAllTasks() {
+        for(Task task:tasks.values()){
+            historyManager.remove(task.getId());
+        }
         tasks.clear();
     }
 
@@ -63,8 +67,10 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void removeTask(int taskId) {
-        if (tasks.containsKey(taskId))
+        if (tasks.containsKey(taskId)) {
             tasks.remove(taskId);
+            historyManager.remove(taskId);
+        }
     }
 
     public Collection<SubTask> getAllSubTask() {
@@ -72,6 +78,9 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void removeAllSubTasks() {
+        for (SubTask subTask:subTasks.values()){
+            historyManager.remove(subTask.getId());
+        }
         subTasks.clear();
     }
 
@@ -108,8 +117,8 @@ public class InMemoryTaskManager implements TaskManager {
         if (subTasks.containsKey(subTaskId)) {
             int epicId = subTasks.get(subTaskId).getEpicId();
             //удаление сабтаски из ее эпика
-            epics.get(epicId).removeSubTask(subTaskId);
             subTasks.remove(subTaskId);
+            historyManager.remove(subTaskId);
         }
     }
 
@@ -120,6 +129,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeAllEpics() {
         for (Epic epic : epics.values()) {
             ArrayList<Integer> subTaskIds = epic.getSubTasksIds();
+            historyManager.remove(epic.getId());
             for (Integer subTaskId : subTaskIds) {
                 removeSubTask(subTaskId);
             }
@@ -152,6 +162,7 @@ public class InMemoryTaskManager implements TaskManager {
                 removeSubTask(subTaskId);
             }
             epics.remove(epicId);
+            historyManager.remove(epicId);
         }
     }
 
