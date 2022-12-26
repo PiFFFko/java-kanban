@@ -20,7 +20,7 @@ public class Main {
         Epic epic1 = new Epic("Утренний ритуал","То что делаешь каждое утро");
         Epic epic2 = new Epic("Тест","Тест");
         InMemoryTaskManager tm = new InMemoryTaskManager();
-        System.out.println("\n" + tm.historyManager.getHistory());
+        System.out.println("\n" + tm.getHistory());
         tm.addTask(task1);
         tm.addTask(task2);
         tm.addEpic(epic1);
@@ -33,27 +33,27 @@ public class Main {
         tm.getTask(1);
         tm.getTask(2);
         tm.getTask(1);
-        System.out.println("\n" + tm.historyManager.getHistory());
+        System.out.println("\n" + tm.getHistory());
         tm.getSubTask(5);
         tm.getSubTask(6);
         tm.getSubTask(7);
         tm.getSubTask(7);
         tm.getSubTask(6);
         tm.getSubTask(5);
-        System.out.println("\n" + tm.historyManager.getHistory());
+        System.out.println("\n" + tm.getHistory());
         tm.getEpic(3);
         tm.getEpic(4);
         tm.getEpic(4);
         tm.getEpic(3);
-        System.out.println("\n" + tm.historyManager.getHistory());
+        System.out.println("\n" + tm.getHistory());
         tm.removeTask(1);
         tm.removeSubTask(5);
         tm.removeEpic(4);
-        System.out.println("\n" + tm.historyManager.getHistory());
+        System.out.println("\n" + tm.getHistory());
         tm.removeEpic(3);
-        System.out.println("\n" + tm.historyManager.getHistory());
+        System.out.println("\n" + tm.getHistory());
         tm.removeTask(2);
-        System.out.println("\n" + tm.historyManager.getHistory());
+        System.out.println("\n" + tm.getHistory());
     }
 
     public static void testSprint4GetHistory(){
@@ -72,7 +72,7 @@ public class Main {
         tm.getEpic(2);
         tm.getSubTask(3);
         //шесть записей находится в истории
-        System.out.println(tm.historyManager.getHistory());
+        System.out.println(tm.getHistory());
         //добавляем еще шесть записей в историю
         //итоговая последовательность должна быть 1,3,2,1,2,3,2,1,3,3,1,2
         //Отсекая последние десять должно получиться 2,1,2,3,2,1,3,3,1,2
@@ -82,7 +82,7 @@ public class Main {
         tm.getSubTask(3);
         tm.getTask(1);
         tm.getEpic(2);
-        System.out.println(tm.historyManager.getHistory());
+        System.out.println(tm.getHistory());
 
     }
 

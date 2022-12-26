@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTaskManager implements TaskManager {
-    public HistoryManager historyManager;
+    private HistoryManager historyManager;
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, SubTask> subTasks;
     private HashMap<Integer, Epic> epics;
@@ -43,7 +43,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void removeAllTasks() {
-        for(Task task:tasks.values()){
+        for (Task task : tasks.values()) {
             historyManager.remove(task.getId());
         }
         tasks.clear();
@@ -78,7 +78,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void removeAllSubTasks() {
-        for (SubTask subTask:subTasks.values()){
+        for (SubTask subTask : subTasks.values()) {
             historyManager.remove(subTask.getId());
         }
         subTasks.clear();
@@ -116,7 +116,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeSubTask(int subTaskId) {
         if (subTasks.containsKey(subTaskId)) {
             int epicId = subTasks.get(subTaskId).getEpicId();
-            //удаление сабтаски из ее эпика
+            epics.get(epicId).removeSubTask(subTaskId);
             subTasks.remove(subTaskId);
             historyManager.remove(subTaskId);
         }
@@ -157,7 +157,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     public void removeEpic(int epicId) {
         if (epics.containsKey(epicId)) {
-            ArrayList<Integer> subTaskIds = epics.get(epicId).getSubTasksIds();
+            List<Integer> subTaskIds = (List<Integer>) epics.get(epicId).getSubTasksIds().clone();
             for (Integer subTaskId : subTaskIds) {
                 removeSubTask(subTaskId);
             }

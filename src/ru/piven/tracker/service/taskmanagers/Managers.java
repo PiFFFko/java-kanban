@@ -5,12 +5,12 @@ import ru.piven.tracker.service.history.InMemoryHistoryManager;
 
 public class Managers {
 
-    public TaskManager getDefault(){
-        return new InMemoryTaskManager();
+    public static HistoryManager getDefaultHistory() {
+        return new InMemoryHistoryManager();
     }
 
-    public static HistoryManager getDefaultHistory(){
-        return new InMemoryHistoryManager();
+    public TaskManager getDefault() {
+        return new InMemoryTaskManager();
     }
 
 }
