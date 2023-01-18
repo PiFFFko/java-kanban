@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryTaskManager implements TaskManager {
-    private HistoryManager historyManager;
+    protected HistoryManager historyManager;
     private HashMap<Integer, Task> tasks;
     private HashMap<Integer, SubTask> subTasks;
     private HashMap<Integer, Epic> epics;
@@ -51,13 +51,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     public Task getTask(int taskId) {
         Task task = tasks.getOrDefault(taskId, null);
-        historyManager.add(task);
+        if (task != null) {
+            historyManager.add(task);
+        }
         return task;
     }
 
     public void addTask(Task task) {
         Integer id = idCounter.getAndIncrement();
         task.setId(id);
+        tasks.put(id, task);
+    }
+
+    public void addTask(Integer id, Task task) {
         tasks.put(id, task);
     }
 
@@ -73,7 +79,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
     }
 
-    public Collection<SubTask> getAllSubTask() {
+    public Collection<SubTask> getAllSubTasks() {
         return subTasks.values();
     }
 
@@ -86,7 +92,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     public SubTask getSubTask(int subTaskId) {
         SubTask subTask = subTasks.getOrDefault(subTaskId, null);
-        historyManager.add(subTask);
+        if (subTask != null) {
+            historyManager.add(subTask);
+        }
         return subTask;
     }
 
@@ -96,6 +104,16 @@ public class InMemoryTaskManager implements TaskManager {
     public void addSubTask(SubTask subTask, Integer epicId) {
         if (epics.containsKey(epicId)) {
             int id = idCounter.getAndIncrement();
+            subTask.setEpicId(epicId);
+            subTask.setId(id);
+            epics.get(epicId).addSubTask(id);
+            subTasks.put(id, subTask);
+            handleEpicStatus(epicId);
+        }
+    }
+
+    public void addSubTask(Integer id, SubTask subTask, Integer epicId) {
+        if (epics.containsKey(epicId)) {
             subTask.setEpicId(epicId);
             subTask.setId(id);
             epics.get(epicId).addSubTask(id);
@@ -139,13 +157,19 @@ public class InMemoryTaskManager implements TaskManager {
 
     public Epic getEpic(int epicId) {
         Epic epic = epics.getOrDefault(epicId, null);
-        historyManager.add(epic);
+        if (epic != null) {
+            historyManager.add(epic);
+        }
         return epic;
     }
 
     public void addEpic(Epic epic) {
         int id = idCounter.getAndIncrement();
         epic.setId(id);
+        epics.put(id, epic);
+    }
+
+    public void addEpic(Integer id, Epic epic) {
         epics.put(id, epic);
     }
 
@@ -200,5 +224,10 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Task> getHistory() {
         return historyManager.getHistory();
     }
+
+    public void setIdCounter(AtomicInteger idCounter) {
+        this.idCounter = idCounter;
+    }
+
 
 }

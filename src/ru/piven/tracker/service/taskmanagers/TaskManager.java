@@ -21,7 +21,7 @@ public interface TaskManager {
 
     void removeTask(int taskId);
 
-    Collection<SubTask> getAllSubTask();
+    Collection<SubTask> getAllSubTasks();
 
     void removeAllSubTasks();
 
