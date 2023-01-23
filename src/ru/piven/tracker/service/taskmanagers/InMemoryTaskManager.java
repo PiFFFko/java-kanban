@@ -225,7 +225,7 @@ public class InMemoryTaskManager implements TaskManager {
         return historyManager.getHistory();
     }
 
-    public void setIdCounter(AtomicInteger idCounter) {
+    protected void setIdCounter(AtomicInteger idCounter) {
         this.idCounter = idCounter;
     }
 

@@ -14,8 +14,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
@@ -46,8 +49,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     case SUBTASK:
                         fm.addSubTask(task.getId(), (SubTask) task, ((SubTask) task).getEpicId());
                         break;
+                    default:
+                        throw new ManagerSaveException();
                 }
-            line = bufferedReader.readLine();
+                line = bufferedReader.readLine();
             }
             String history = bufferedReader.readLine();
             String[] historyElems = history.split(",");
@@ -67,15 +72,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static Task fromString(String value) {
         Task task = null;
-        Integer id;
-        String name;
-        Status status;
-        String description;
         String[] values = value.split(";");
-        id = Integer.valueOf(values[1]);
-        name = values[2];
-        status = Status.valueOf(values[3]);
-        description = values[4];
+        Integer id = Integer.valueOf(values[1]);
+        String name = values[2];
+        Status status = Status.valueOf(values[3]);
+        String description = values[4];
         switch (values[0]) {
             case ("TASK"):
                 task = new Task(id, name, status, description);
@@ -92,12 +93,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private static String historyToString(HistoryManager manager) {
-        StringBuilder result = new StringBuilder();
-        for (Task task : manager.getHistory()) {
-            result.append(task.getId());
-            result.append(",");
-        }
-        return result.toString();
+        return manager.getHistory().stream()
+                .map(Task::getId)
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
     }
 
     private static List<Integer> historyFromString(String value) {
