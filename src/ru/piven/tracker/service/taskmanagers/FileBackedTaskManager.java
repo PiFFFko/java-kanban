@@ -65,7 +65,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             }
             fm.setIdCounter(new AtomicInteger(maxId));
         } catch (IOException e) {
-            throw new ManagerSaveException();
+            throw new ManagerSaveException(e);
         }
         return fm;
     }
@@ -206,7 +206,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             bufferedWriter.write("\n");
             bufferedWriter.write(historyToString(historyManager));
         } catch (IOException e) {
-            throw new ManagerSaveException();
+            throw new ManagerSaveException(e);
         }
     }
 }
