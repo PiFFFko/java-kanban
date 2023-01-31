@@ -15,11 +15,11 @@ public interface TaskManager {
 
     Task getTask(int taskId);
 
-    void addTask(Task task);
+    boolean addTask(Task task);
 
-    void updateTask(int taskId, Task task);
+    boolean updateTask(int taskId, Task task);
 
-    void removeTask(int taskId);
+    boolean removeTask(int taskId);
 
     Collection<SubTask> getAllSubTasks();
 
@@ -27,11 +27,11 @@ public interface TaskManager {
 
     SubTask getSubTask(int subTaskId);
 
-    void addSubTask(SubTask subTask, Integer epicId);
+    boolean addSubTask(SubTask subTask, Integer epicId);
 
-    void updateSubTask(int subTaskId, SubTask subTask);
+    boolean updateSubTask(int subTaskId, SubTask subTask);
 
-    void removeSubTask(int subTaskId);
+    boolean removeSubTask(int subTaskId);
 
     Collection<Epic> getAllEpics();
 
@@ -41,9 +41,9 @@ public interface TaskManager {
 
     void addEpic(Epic epic);
 
-    void updateEpic(int epicId, Epic epic);
+    boolean updateEpic(int epicId, Epic epic);
 
-    void removeEpic(int epicId);
+    boolean removeEpic(int epicId);
 
     ArrayList<SubTask> getEpicSubTasks(int epicId);
 

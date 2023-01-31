@@ -14,15 +14,15 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    private Path tasksFile;
+    public static final String IF_TIME_NOT_SET = "notSet";
+    private final Path tasksFile;
 
     public FileBackedTaskManager(Path tasksFile) {
         super();
@@ -31,7 +31,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     public static FileBackedTaskManager loadFromFile(Path path) {
         //maxId необходим для того, чтобы понять с какого айдишника нужно будет продолжать добавлять следующие задачи
-        Integer maxId = 0;
+        int maxId = 0;
         FileBackedTaskManager fm = new FileBackedTaskManager(path);
         try (BufferedReader bufferedReader = Files.newBufferedReader((path), StandardCharsets.UTF_8)) {
             String line = bufferedReader.readLine();
@@ -54,16 +54,18 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 }
                 line = bufferedReader.readLine();
             }
-            String history = bufferedReader.readLine();
-            String[] historyElems = history.split(",");
-            for (String historyElem : historyElems) {
-                Integer id = Integer.valueOf(historyElem);
-                //Дергаем get по айдишнику из массива. В какой-то из хэшмап он точно будет и тогда попадет в историю
-                fm.getTask(id);
-                fm.getEpic(id);
-                fm.getSubTask(id);
+            Optional<String> history = Optional.ofNullable(bufferedReader.readLine());
+            if (history.isPresent()) {
+                String[] historyElems = history.get().split(",");
+                for (String historyElem : historyElems) {
+                    int id = Integer.valueOf(historyElem);
+                    //Дергаем get по айдишнику из массива. В какой-то из хэшмап он точно будет и тогда попадет в историю
+                    fm.getTask(id);
+                    fm.getEpic(id);
+                    fm.getSubTask(id);
+                }
+                fm.setIdCounter(new AtomicInteger(maxId));
             }
-            fm.setIdCounter(new AtomicInteger(maxId));
         } catch (IOException e) {
             throw new ManagerSaveException(e);
         }
@@ -77,13 +79,27 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = values[2];
         Status status = Status.valueOf(values[3]);
         String description = values[4];
+        String startTime;
+        String duration;
         switch (values[0]) {
             case ("TASK"):
-                task = new Task(id, name, status, description);
+                if (values[5].equals(IF_TIME_NOT_SET)) {
+                    task = new Task(id, name, status, description);
+                } else {
+                    startTime = values[5];
+                    duration = values[6];
+                    task = new Task(id, name, status, description, startTime, duration);
+                }
                 break;
             case ("SUBTASK"):
-                int epicId = Integer.valueOf(values[5]);
-                task = new SubTask(id, name, status, description, epicId);
+                int epicId = Integer.valueOf(values[7]);
+                if (values[5].equals(IF_TIME_NOT_SET)) {
+                    task = new SubTask(id, name, status, description, epicId);
+                } else {
+                    startTime = values[5];
+                    duration = values[6];
+                    task = new SubTask(id, name, status, description, startTime, duration, epicId);
+                }
                 break;
             case ("EPIC"):
                 task = new Epic(id, name, status, description);
@@ -115,39 +131,57 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void addTask(Task task) {
-        super.addTask(task);
-        save();
+    public boolean addTask(Task task) {
+        if (super.addTask(task)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void updateTask(int taskId, Task task) {
-        super.updateTask(taskId, task);
-        save();
+    public boolean updateTask(int taskId, Task task) {
+        if (super.updateTask(taskId, task)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void removeTask(int taskId) {
-        super.removeTask(taskId);
-        save();
+    public boolean removeTask(int taskId) {
+        if (super.removeTask(taskId)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void addSubTask(SubTask subTask, Integer epicId) {
-        super.addSubTask(subTask, epicId);
-        save();
+    public boolean addSubTask(SubTask subTask, Integer epicId) {
+        if (super.addSubTask(subTask, epicId)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void updateSubTask(int subTaskId, SubTask subTask) {
-        super.updateSubTask(subTaskId, subTask);
-        save();
+    public boolean updateSubTask(int subTaskId, SubTask subTask) {
+        if (super.updateSubTask(subTaskId, subTask)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void removeSubTask(int subTaskId) {
-        super.removeSubTask(subTaskId);
-        save();
+    public boolean removeSubTask(int subTaskId) {
+        if (super.removeSubTask(subTaskId)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -157,9 +191,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void updateEpic(int epicId, Epic epic) {
-        super.updateEpic(epicId, epic);
-        save();
+    public boolean updateEpic(int epicId, Epic epic) {
+        if (super.updateEpic(epicId, epic)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -184,12 +221,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public void removeEpic(int epicId) {
-        super.removeEpic(epicId);
-        save();
+    public boolean removeEpic(int epicId) {
+        if (super.removeEpic(epicId)) {
+            save();
+            return true;
+        }
+        return false;
     }
 
-    private void save() {
+    public void save() {
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(tasksFile, StandardCharsets.UTF_8)) {
             for (Task task : getAllTasks()) {
                 bufferedWriter.write(task.toString());

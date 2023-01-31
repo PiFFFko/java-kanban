@@ -12,9 +12,52 @@ import java.nio.file.Paths;
 public class Main {
 
     public static void main(String[] args) throws IOException {
-        testSprint6();
+        testSprint7();
     }
 
+    public static void testSprint7(){
+        Path file = Paths.get(System.getProperty("user.dir"), "data", "data.csv");
+        FileBackedTaskManager fm = new FileBackedTaskManager(file);
+        Task task1 = new Task("Убраться в квартире", "Подмести и помыть полы, убрать мусор");
+        Task task2 = new Task("Покормить кису", "Корм в кладовке насыпать жвотине в миску", "23.01.2023 15:45", "PT20M");
+        SubTask subTask1 = new SubTask("Почистить зубы", "Чисто, чисто, чисто","30.01.2023 08:00", "PT10M");
+        SubTask subTask2 = new SubTask("Позавтракать", "Яишенка с беконом и помидорами - топ!","20.01.2023 09:00", "PT40M");
+        SubTask subTask3 = new SubTask("Я не знаю какие задачи еще придумать", "Пусто", "25.01.2023 10:00", "PT10M");
+        Epic epic1 = new Epic("Утренний ритуал", "То что делаешь каждое утро");
+        Epic epic2 = new Epic("Тест", "Тест");
+        fm.addTask(task1);
+        fm.addTask(task2);
+        fm.addEpic(epic1);
+        fm.addEpic(epic2);
+        fm.addSubTask(subTask1, 3);
+        fm.addSubTask(subTask2, 3);
+        fm.addSubTask(subTask3, 3);
+        fm.getTask(1);
+        fm.getTask(2);
+        fm.getTask(1);
+        fm.getTask(2);
+        fm.getTask(1);
+        fm.getSubTask(5);
+        fm.getSubTask(6);
+        fm.getSubTask(7);
+        fm.getSubTask(7);
+        fm.getSubTask(6);
+        fm.getSubTask(5);
+        fm.getEpic(3);
+        fm.getEpic(4);
+        fm.getEpic(4);
+        fm.getEpic(3);
+        System.out.println(fm.getAllTasks());
+        System.out.println(fm.getAllSubTasks());
+        System.out.println(fm.getAllEpics());
+        System.out.println("История:" + fm.getHistory() + "\n");
+        FileBackedTaskManager fm2 = FileBackedTaskManager.loadFromFile(file);
+        System.out.println(fm2.getAllTasks());
+        System.out.println(fm2.getAllSubTasks());
+        System.out.println(fm2.getAllEpics());
+        System.out.println("История:" + fm2.getHistory() + "\n");
+        System.out.println(fm2.getPrioritizedTasks());
+    }
     public static void testSprint6() throws IOException {
         Path file = Paths.get(System.getProperty("user.dir"), "data", "data.csv");
         FileBackedTaskManager fm = new FileBackedTaskManager(file);
