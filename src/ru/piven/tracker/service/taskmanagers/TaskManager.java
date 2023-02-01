@@ -7,6 +7,7 @@ import ru.piven.tracker.model.Task;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 public interface TaskManager {
     Collection<Task> getAllTasks();
@@ -48,5 +49,7 @@ public interface TaskManager {
     ArrayList<SubTask> getEpicSubTasks(int epicId);
 
     List<Task> getHistory();
+
+    Set<Task> getPrioritizedTasks();
 
 }

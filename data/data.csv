@@ -1,3 +1,4 @@
-EPIC;1;Epic1;NEW;Epic1Description;01.01.1970 00:00;PT0S
-SUBTASK;2;SubTask1;NEW;SubTask1Description;notSet;PT0S;1
+type, id, name, status, description, startTime, duration, epicId
+EPIC;1;Epic1;NEW;Epic1Description;;PT0S
+SUBTASK;2;SubTask1;NEW;SubTask1Description;;PT0S;1
 

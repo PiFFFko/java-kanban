@@ -1,6 +1,5 @@
 package ru.piven.tracker.tests;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.piven.tracker.model.Task;
 import ru.piven.tracker.service.history.HistoryManager;

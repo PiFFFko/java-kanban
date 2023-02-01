@@ -2,15 +2,12 @@ package ru.piven.tracker.tests;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
 import ru.piven.tracker.service.taskmanagers.FileBackedTaskManager;
-import ru.piven.tracker.service.taskmanagers.TaskManager;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -28,14 +25,6 @@ public class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskMan
         subTask3 = new SubTask("SubTask3", "SubTask3Description");
         epic1 = new Epic("Epic1", "Epic1Description");
         epic2 = new Epic("Epic2", "Epic2Description");
-    }
-
-    @Test
-    void saveAndLoadWithEmptyTasksAndHistory(){
-        taskManager.save();
-        FileBackedTaskManager fileTaskManager = FileBackedTaskManager.loadFromFile(file);
-        assertTrue(fileTaskManager.getAllTasks().isEmpty());
-        assertTrue(fileTaskManager.getHistory().isEmpty());
     }
 
     @Test

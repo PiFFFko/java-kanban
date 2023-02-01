@@ -4,6 +4,7 @@ import ru.piven.tracker.service.Status;
 import ru.piven.tracker.service.taskmanagers.TaskType;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -55,9 +56,8 @@ public class Epic extends Task {
     }
 
     private void recalculateStartTimeAndEndTime() {
-        LocalDateTime startTime = LocalDateTime.of(1970, 1, 1, 0, 0);
+        LocalDateTime startTime = LocalDateTime.MIN;
         Duration duration = Duration.ofMinutes(0);
-        LocalDateTime endTime;
         for (SubTask subTask : subTasks) {
             if(subTask.getStartTime().isPresent()){
                 if (startTime.isBefore(subTask.getStartTime().get())) {
@@ -66,9 +66,11 @@ public class Epic extends Task {
                 duration = duration.plus(subTask.getDuration());
             }
         }
-        setStartTime(startTime);
-        setDuration(duration);
-        setEndTime(startTime.plus(duration));
+        if(!startTime.isEqual(LocalDateTime.MIN)){
+            setStartTime(startTime);
+            setDuration(duration);
+            setEndTime(startTime.plus(duration));
+        }
     }
 
     @Override

@@ -26,18 +26,6 @@ public class InMemoryTaskManager implements TaskManager {
         historyManager = Managers.getDefaultHistory();
     }
 
-    public HashMap<Integer, Task> getTasks() {
-        return tasks;
-    }
-
-    public HashMap<Integer, SubTask> getSubTasks() {
-        return subTasks;
-    }
-
-    public HashMap<Integer, Epic> getEpics() {
-        return epics;
-    }
-
     public Collection<Task> getAllTasks() {
         return tasks.values();
     }
@@ -58,7 +46,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public boolean addTask(Task task) {
-        if (isNoIntersectionWithTasks(task)) {
+        if (!isIntersectionWithTasks(task)) {
             Integer id = idCounter.getAndIncrement();
             task.setId(id);
             tasks.put(id, task);
@@ -69,7 +57,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public void addTask(Integer id, Task task) {
-        if (isNoIntersectionWithTasks(task)) {
+        if (!isIntersectionWithTasks(task)) {
             tasks.put(id, task);
             taskByTime.add(task);
         }
@@ -78,7 +66,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     public boolean updateTask(int taskId, Task task) {
         if (tasks.containsKey(taskId)) {
-            if (isNoIntersectionWithTasks(task)) {
+            if (!isIntersectionWithTasks(task)) {
                 tasks.put(taskId, task);
                 return true;
             }
@@ -118,7 +106,7 @@ public class InMemoryTaskManager implements TaskManager {
     //Сообщаем эпику, что у него есть новая подзадача занося id этой подзадачи
     //в список подзадач эпика.
     public boolean addSubTask(SubTask subTask, Integer epicId) {
-        if (isNoIntersectionWithTasks(subTask)) {
+        if (!isIntersectionWithTasks(subTask)) {
             if (epics.containsKey(epicId)) {
                 int id = idCounter.getAndIncrement();
                 subTask.setEpicId(epicId);
@@ -134,7 +122,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     public boolean addSubTask(Integer id, SubTask subTask, Integer epicId) {
-        if (isNoIntersectionWithTasks(subTask)) {
+        if (!isIntersectionWithTasks(subTask)) {
             if (epics.containsKey(epicId)) {
                 subTask.setEpicId(epicId);
                 subTask.setId(id);
@@ -150,7 +138,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     public boolean updateSubTask(int subTaskId, SubTask subTask) {
         if (subTasks.containsKey(subTaskId)) {
-            if (isNoIntersectionWithTasks(subTask)) {
+            if (!isIntersectionWithTasks(subTask)) {
                 Integer epicId = subTasks.get(subTaskId).getEpicId();
                 subTask.setEpicId(epicId);
                 subTasks.put(subTaskId, subTask);
@@ -259,7 +247,7 @@ public class InMemoryTaskManager implements TaskManager {
         this.idCounter = idCounter;
     }
 
-    private boolean isNoIntersectionWithTasks(Task task) {
+    private boolean isIntersectionWithTasks(Task task) {
         for (Task task2 : taskByTime) {
             //для случая если мы хотим заапдейтить таску, но с тем же временем
             if (task.getId() != task2.getId()) {
@@ -268,17 +256,21 @@ public class InMemoryTaskManager implements TaskManager {
                         task.getDuration(),
                         task2.getStartTime().orElse(LocalDateTime.MIN.plusNanos(1)),
                         task2.getDuration())) {
-                    return false;
+                    return true;
                 }
             }
         }
-        return true;
+        return false;
     }
 
-    private boolean isTimeIntersection(LocalDateTime startTime1, Duration duration1, LocalDateTime starTime2, Duration duration2) {
+    //Конец первой задачи на временном промежутке всегда будет правее начала первой задачи, т.е. позже.
+    //Поэтому нужно проверить, что конец раньше начала второй задачи, тогда и начало первой будет раньше начала второй
+    //Так и с началом. Начало на временном промежутке всегда будет раньше конца, значит достаточно проверить, что начало
+    //первой будет позже конца второй. Эти два условия обуславливают непересечение двух задач.
+    private boolean isTimeIntersection(LocalDateTime startTime1, Duration duration1, LocalDateTime startTime2, Duration duration2) {
         LocalDateTime endTime1 = startTime1.plus(duration1);
-        LocalDateTime endTime2 = starTime2.plus(duration2);
-        return !(endTime1.isBefore(starTime2) || startTime1.isAfter(endTime2));
+        LocalDateTime endTime2 = startTime2.plus(duration2);
+        return !(endTime1.isBefore(startTime2) || startTime1.isAfter(endTime2));
     }
 
     public Set<Task> getPrioritizedTasks() {

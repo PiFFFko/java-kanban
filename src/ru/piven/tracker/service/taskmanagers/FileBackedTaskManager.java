@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
 
-    public static final String IF_TIME_NOT_SET = "notSet";
+    public static final String IF_TIME_NOT_SET = "";
     private final Path tasksFile;
 
     public FileBackedTaskManager(Path tasksFile) {
@@ -34,10 +34,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         int maxId = 0;
         FileBackedTaskManager fm = new FileBackedTaskManager(path);
         try (BufferedReader bufferedReader = Files.newBufferedReader((path), StandardCharsets.UTF_8)) {
-            String line = bufferedReader.readLine();
+            bufferedReader.readLine();
+            Optional<String> line = Optional.ofNullable(bufferedReader.readLine());
             //Читаем до пустой строки, следующая строка будет содержать историю
-            while (!line.equals("")) {
-                Task task = fromString(line);
+            while (!line.get().equals("") && line.isPresent()) {
+                Task task = fromString(line.get());
                 maxId = Integer.max(maxId, task.getId());
                 switch (task.getType()) {
                     case TASK:
@@ -52,7 +53,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     default:
                         throw new ManagerSaveException();
                 }
-                line = bufferedReader.readLine();
+                line = Optional.of(bufferedReader.readLine());
             }
             Optional<String> history = Optional.ofNullable(bufferedReader.readLine());
             if (history.isPresent()) {
@@ -81,8 +82,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String description = values[4];
         String startTime;
         String duration;
-        switch (values[0]) {
-            case ("TASK"):
+        switch (TaskType.valueOf(values[0])) {
+            case TASK:
                 if (values[5].equals(IF_TIME_NOT_SET)) {
                     task = new Task(id, name, status, description);
                 } else {
@@ -91,7 +92,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     task = new Task(id, name, status, description, startTime, duration);
                 }
                 break;
-            case ("SUBTASK"):
+            case SUBTASK:
                 int epicId = Integer.valueOf(values[7]);
                 if (values[5].equals(IF_TIME_NOT_SET)) {
                     task = new SubTask(id, name, status, description, epicId);
@@ -101,7 +102,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     task = new SubTask(id, name, status, description, startTime, duration, epicId);
                 }
                 break;
-            case ("EPIC"):
+            case EPIC:
                 task = new Epic(id, name, status, description);
                 break;
         }
@@ -113,15 +114,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 .map(Task::getId)
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
-    }
-
-    private static List<Integer> historyFromString(String value) {
-        List<Integer> ids = new ArrayList<>();
-        String[] values = value.split(",");
-        for (String id : values) {
-            ids.add(Integer.valueOf(id));
-        }
-        return ids;
     }
 
     @Override
@@ -229,8 +221,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return false;
     }
 
-    public void save() {
+    private void save() {
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(tasksFile, StandardCharsets.UTF_8)) {
+            bufferedWriter.write("type, id, name, status, description, startTime, duration, epicId\n");
             for (Task task : getAllTasks()) {
                 bufferedWriter.write(task.toString());
                 bufferedWriter.write("\n");

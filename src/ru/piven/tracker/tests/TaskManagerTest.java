@@ -1,6 +1,5 @@
 package ru.piven.tracker.tests;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
@@ -8,7 +7,6 @@ import ru.piven.tracker.model.Task;
 import ru.piven.tracker.service.taskmanagers.TaskManager;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
