@@ -34,11 +34,12 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         int maxId = 0;
         FileBackedTaskManager fm = new FileBackedTaskManager(path);
         try (BufferedReader bufferedReader = Files.newBufferedReader((path), StandardCharsets.UTF_8)) {
+            //пропускаем заголовок
             bufferedReader.readLine();
-            Optional<String> line = Optional.ofNullable(bufferedReader.readLine());
+            String line = bufferedReader.readLine();
             //Читаем до пустой строки, следующая строка будет содержать историю
-            while (!line.get().equals("") && line.isPresent()) {
-                Task task = fromString(line.get());
+            while (!line.equals("")) {
+                Task task = fromString(line);
                 maxId = Integer.max(maxId, task.getId());
                 switch (task.getType()) {
                     case TASK:
@@ -53,7 +54,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                     default:
                         throw new ManagerSaveException();
                 }
-                line = Optional.of(bufferedReader.readLine());
+                line = bufferedReader.readLine();
             }
             Optional<String> history = Optional.ofNullable(bufferedReader.readLine());
             if (history.isPresent()) {
@@ -223,7 +224,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void save() {
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(tasksFile, StandardCharsets.UTF_8)) {
-            bufferedWriter.write("type, id, name, status, description, startTime, duration, epicId\n");
+            bufferedWriter.write("type; id; name; status; description; startTime; duration; epicId(only For Subtasks)\n");
             for (Task task : getAllTasks()) {
                 bufferedWriter.write(task.toString());
                 bufferedWriter.write("\n");

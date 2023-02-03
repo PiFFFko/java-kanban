@@ -104,7 +104,7 @@ public class Task implements Comparable<Task> {
     @Override
     public String toString() {
         String startTimeStr = startTime.isEmpty() ? IF_TIME_NOT_SET : startTime.get().format(DATE_TIME_FORMATTER);
-        return String.format("%s;%s;%s;%s;%s;%s;%s", type, id, name, status, description, startTimeStr, getDuration().toString());
+        return String.format("%s;%s;%s;%s;%s;%s;%s;noEpicId", type, id, name, status, description, startTimeStr, getDuration().toString());
     }
 
     public LocalDateTime getEndTime() {

@@ -1,4 +1,4 @@
-type, id, name, status, description, startTime, duration, epicId
-EPIC;1;Epic1;NEW;Epic1Description;;PT0S
+type; id; name; status; description; startTime; duration; epicId(only For Subtasks)
+EPIC;1;Epic1;NEW;Epic1Description;;PT0S;noEpicId
 SUBTASK;2;SubTask1;NEW;SubTask1Description;;PT0S;1
 

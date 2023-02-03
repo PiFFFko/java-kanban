@@ -273,8 +273,8 @@ public class InMemoryTaskManager implements TaskManager {
         return !(endTime1.isBefore(startTime2) || startTime1.isAfter(endTime2));
     }
 
-    public Set<Task> getPrioritizedTasks() {
-        return taskByTime;
+    public List<Task> getPrioritizedTasks() {
+        return new ArrayList<>(taskByTime);
     }
 
 }
