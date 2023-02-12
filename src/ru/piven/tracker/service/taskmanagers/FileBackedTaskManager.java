@@ -3,7 +3,8 @@ package ru.piven.tracker.service.taskmanagers;
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
-import ru.piven.tracker.service.Status;
+import ru.piven.tracker.service.enums.Status;
+import ru.piven.tracker.service.enums.TaskType;
 import ru.piven.tracker.service.exceptions.ManagerSaveException;
 import ru.piven.tracker.service.history.HistoryManager;
 
@@ -13,14 +14,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-
     public static final String IF_TIME_NOT_SET = "";
     private final Path tasksFile;
 
@@ -222,7 +220,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return false;
     }
 
-    private void save() {
+    protected void save() {
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(tasksFile, StandardCharsets.UTF_8)) {
             bufferedWriter.write("type; id; name; status; description; startTime; duration; epicId(only For Subtasks)\n");
             for (Task task : getAllTasks()) {

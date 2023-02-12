@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
-import ru.piven.tracker.service.Status;
+import ru.piven.tracker.service.enums.Status;
 import ru.piven.tracker.service.taskmanagers.InMemoryTaskManager;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,33 +29,33 @@ class EpicTest {
     public void epicStatusNewWhenAllSubTasksNew(){
         SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.NEW);
         SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.NEW);
-        taskManager.addSubTask(subTask1,1);
-        taskManager.addSubTask(subTask2,1);
+        taskManager.addSubTask(subTask1, 1);
+        taskManager.addSubTask(subTask2, 1);
         assertEquals(Status.NEW,epic.getStatus());
     }
 
     @Test
     public void epicStatusDoneWhenAllSubTasksDone(){
-        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.DONE);
-        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.DONE);
-        taskManager.addSubTask(subTask1,1);
-        taskManager.addSubTask(subTask2,1);
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.DONE,1);
+        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.DONE,1);
+        taskManager.addSubTask(subTask1, 1);
+        taskManager.addSubTask(subTask2, 1);
         assertEquals(Status.DONE,epic.getStatus());
     }
     @Test
     public void epicStatusInProgressWhenSomeSubTasksDoneOrNew(){
-        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.DONE);
-        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.NEW);
-        taskManager.addSubTask(subTask1,1);
-        taskManager.addSubTask(subTask2,1);
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.DONE,1);
+        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.NEW,1);
+        taskManager.addSubTask(subTask1, 1);
+        taskManager.addSubTask(subTask2, 1);
         assertEquals(Status.IN_PROGRESS,epic.getStatus());
     }
     @Test
     public void epicStatusInProgressWhenAllSubTasksInProgress(){
-        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.IN_PROGRESS);
-        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.IN_PROGRESS);
-        taskManager.addSubTask(subTask1,1);
-        taskManager.addSubTask(subTask2,1);
+        SubTask subTask1 = new SubTask("SubTask1", "Subtask1Description", Status.IN_PROGRESS,1);
+        SubTask subTask2 = new SubTask("SubTask2", "Subtask2Description", Status.IN_PROGRESS,1);
+        taskManager.addSubTask(subTask1, 1);
+        taskManager.addSubTask(subTask2, 1);
         assertEquals(Status.IN_PROGRESS,epic.getStatus());
     }
 }

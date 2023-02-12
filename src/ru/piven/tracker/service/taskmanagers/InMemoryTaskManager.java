@@ -3,7 +3,7 @@ package ru.piven.tracker.service.taskmanagers;
 import ru.piven.tracker.model.Epic;
 import ru.piven.tracker.model.SubTask;
 import ru.piven.tracker.model.Task;
-import ru.piven.tracker.service.Status;
+import ru.piven.tracker.service.enums.Status;
 import ru.piven.tracker.service.history.HistoryManager;
 
 import java.time.Duration;
@@ -33,6 +33,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeAllTasks() {
         for (Task task : tasks.values()) {
             historyManager.remove(task.getId());
+            taskByTime.remove(task);
         }
         tasks.clear();
     }
@@ -76,6 +77,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     public boolean removeTask(int taskId) {
         if (tasks.containsKey(taskId)) {
+            taskByTime.remove(tasks.get(taskId));
             tasks.remove(taskId);
             historyManager.remove(taskId);
             return true;
@@ -90,6 +92,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void removeAllSubTasks() {
         for (SubTask subTask : subTasks.values()) {
             historyManager.remove(subTask.getId());
+            taskByTime.contains(subTask);
         }
         subTasks.clear();
     }
@@ -151,6 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     public boolean removeSubTask(int subTaskId) {
         if (subTasks.containsKey(subTaskId)) {
+            taskByTime.remove(subTasks.get(subTaskId));
             int epicId = subTasks.get(subTaskId).getEpicId();
             epics.get(epicId).removeSubTask(subTaskId);
             subTasks.remove(subTaskId);

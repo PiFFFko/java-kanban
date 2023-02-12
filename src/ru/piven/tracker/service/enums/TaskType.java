@@ -1,4 +1,4 @@
-package ru.piven.tracker.service.taskmanagers;
+package ru.piven.tracker.service.enums;
 
 public enum TaskType {
 

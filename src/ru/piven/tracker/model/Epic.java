@@ -1,10 +1,9 @@
 package ru.piven.tracker.model;
 
-import ru.piven.tracker.service.Status;
-import ru.piven.tracker.service.taskmanagers.TaskType;
+import ru.piven.tracker.service.enums.Status;
+import ru.piven.tracker.service.enums.TaskType;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -12,7 +11,7 @@ import java.util.Objects;
 import static ru.piven.tracker.service.taskmanagers.FileBackedTaskManager.IF_TIME_NOT_SET;
 
 public class Epic extends Task {
-    private final TaskType type = TaskType.EPIC;
+    private transient final TaskType type = TaskType.EPIC;
     private final ArrayList<SubTask> subTasks;
     private LocalDateTime endTime;
 

@@ -129,7 +129,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     @Test
     void getAllSubTasksShouldReturnCollectionWithSubTasksWhenSomeWereAdded() {
         taskManager.addEpic(epic1);
-        taskManager.addSubTask(subTask1,1);
+        taskManager.addSubTask(subTask1, 1);
         Collection<SubTask> testList = Collections.singletonList(subTask1);
         assertArrayEquals(testList.toArray(),taskManager.getAllSubTasks().toArray());
     }

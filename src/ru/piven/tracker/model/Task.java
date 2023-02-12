@@ -1,7 +1,7 @@
 package ru.piven.tracker.model;
 
-import ru.piven.tracker.service.Status;
-import ru.piven.tracker.service.taskmanagers.TaskType;
+import ru.piven.tracker.service.enums.Status;
+import ru.piven.tracker.service.enums.TaskType;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -113,6 +113,9 @@ public class Task implements Comparable<Task> {
 
     @Override
     public int compareTo(Task o) {
+        if (this.hashCode() == o.hashCode()){
+            return 0;
+        }
         return this.getStartTime().orElse(LocalDateTime.MIN).compareTo(o.getStartTime().orElse(LocalDateTime.MIN.plus(Duration.ofMinutes(1))));
     }
 
@@ -125,13 +128,11 @@ public class Task implements Comparable<Task> {
                 && Objects.equals(description, task.description)
                 && id.equals(task.id)
                 && status == task.status
-                && type == task.type
-                && Objects.equals(duration, task.duration)
-                && Objects.equals(startTime, task.startTime);
+                && type == task.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, description, id, status, type, duration, startTime);
+        return Objects.hash(name, description, id, status, type);
     }
 }
