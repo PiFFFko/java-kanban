@@ -15,6 +15,11 @@ public class HttpTaskManager extends FileBackedTaskManager {
 
     private KVTaskClient client;
     private static Gson gson = new Gson();
+    private static final String TASK_KEY = "tasks";
+    private static final String SUBTASK_KEY = "subtasks";
+    private static final String EPIC_KEY = "epics";
+    private static final String HISTORY_KEY = "history";
+
 
     public HttpTaskManager(String serverURL) throws InterruptedException, IOException {
         super(null);
@@ -34,27 +39,24 @@ public class HttpTaskManager extends FileBackedTaskManager {
     }
 
 
-    public HttpTaskManager loadFromServer(String serverUrl) throws IOException, InterruptedException {
-        HttpTaskManager taskManager = new HttpTaskManager(serverUrl);
-        int maxId = 0;
-        Collection<Task> tasks = gson.fromJson(client.load("tasks"), new TypeToken<List<Task>>() {
+    public static HttpTaskManager loadFromServer(String serverURL) throws IOException, InterruptedException {
+        KVTaskClient client = new KVTaskClient(serverURL);
+        HttpTaskManager taskManager = new HttpTaskManager(serverURL);
+        Collection<Task> tasks = gson.fromJson(client.load(TASK_KEY), new TypeToken<List<Task>>() {
         }.getType());
-        Collection<Epic> epics = gson.fromJson(client.load("epics"), new TypeToken<List<Epic>>() {
+        Collection<Epic> epics = gson.fromJson(client.load(EPIC_KEY), new TypeToken<List<Epic>>() {
         }.getType());
-        Collection<SubTask> subTasks = gson.fromJson(client.load("subtasks"), new TypeToken<List<SubTask>>() {
+        Collection<SubTask> subTasks = gson.fromJson(client.load(SUBTASK_KEY), new TypeToken<List<SubTask>>() {
         }.getType());
-        Collection<Task> history = gson.fromJson(client.load("history"), new TypeToken<List<Task>>() {
+        Collection<Task> history = gson.fromJson(client.load(HISTORY_KEY), new TypeToken<List<Task>>() {
         }.getType());
         for (Task task : tasks) {
-            maxId = Integer.max(maxId, task.getId());
             taskManager.addTask(task.getId(), task);
         }
         for (Epic epic : epics) {
-            maxId = Integer.max(maxId, epic.getId());
             taskManager.addEpic(epic.getId(), epic);
         }
         for (SubTask subTask : subTasks){
-            maxId = Integer.max(maxId, subTask.getId());
             taskManager.addSubTask(subTask.getId(),subTask,subTask.getEpicId());
         }
         for(Task task: history){

@@ -5,13 +5,12 @@ import com.sun.net.httpserver.HttpExchange;
 import ru.piven.tracker.server.enums.HttpCode;
 import ru.piven.tracker.server.enums.HttpMethod;
 import ru.piven.tracker.server.response.ErrorResponse;
-import ru.piven.tracker.server.response.SuccessResponse;
 import ru.piven.tracker.service.taskmanagers.TaskManager;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public class HttpEpicSubtasksHandler extends HttpRequestHandler{
+public class HttpEpicSubtasksHandler extends HttpRequestHandler {
     public HttpEpicSubtasksHandler(TaskManager taskManager, Gson gson) {
         super(taskManager, gson);
     }
@@ -29,16 +28,16 @@ public class HttpEpicSubtasksHandler extends HttpRequestHandler{
     @Override
     protected void handleGetHttpExchange(HttpExchange httpExchange) throws IOException {
         Optional<String> query = Optional.ofNullable(httpExchange.getRequestURI().getQuery());
-        if (query.isEmpty()) {
-            writeResponse(httpExchange, HttpCode.BAD_REQUEST.getCode(), new ErrorResponse("Неправильно задан запрос. Укажите id эпика"));
-            return;
-        }
         Optional<Integer> epicId = Optional.ofNullable(Integer.parseInt(getParamFromQuery(query.get()).get("id")));
         if (epicId.isEmpty()) {
-            writeResponse(httpExchange, HttpCode.BAD_REQUEST.getCode(), new ErrorResponse("Неправильно задан запрос. Эпика с таким id не существует"));
+            writeResponse(httpExchange, HttpCode.BAD_REQUEST.getCode(), new ErrorResponse("Неправильно задан запрос."));
             return;
         }
-        writeResponse(httpExchange,HttpCode.SUCCESS.getCode(), taskManager.getEpicSubTasks(epicId.get()));
+        if (taskManager.getEpic(epicId.get()) == null){
+            writeResponse(httpExchange, HttpCode.BAD_REQUEST.getCode(), new ErrorResponse("Неправильно задан запрос. Эпика с таким ID не существует."));
+            return;
+        }
+            writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), taskManager.getEpicSubTasks(epicId.get()));
     }
 
     @Override

@@ -1,10 +1,4 @@
 type; id; name; status; description; startTime; duration; epicId(only For Subtasks)
-TASK;1;Task1;NEW;Task1Description;23.01.2023 15:45;PT20M;noEpicId
-TASK;2;Task2;NEW;Task2Description;;PT0S;noEpicId
-EPIC;3;Epic1;NEW;Epic1Description;;PT0S;noEpicId
-EPIC;4;Epic2;NEW;Epic2Description;;PT0S;noEpicId
-SUBTASK;5;SubTask1;NEW;SubTask1Description;;PT0S;3
-SUBTASK;6;SubTask2;NEW;SubTask2Description;;PT0S;3
-SUBTASK;7;SubTask3;NEW;SubTask3Description;;PT0S;3
+EPIC;1;Epic1;NEW;Epic1Description;;PT0S;noEpicId
+SUBTASK;2;SubTask1;NEW;SubTask1Description;;PT0S;1
 
-1,2,5,6

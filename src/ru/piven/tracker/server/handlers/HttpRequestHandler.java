@@ -1,8 +1,10 @@
 package ru.piven.tracker.server.handlers;
 
 import com.google.gson.Gson;
+import com.sun.net.httpserver.Headers;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import ru.piven.tracker.server.enums.HttpCode;
 import ru.piven.tracker.server.response.ErrorResponse;
 import ru.piven.tracker.service.taskmanagers.TaskManager;
 
@@ -33,17 +35,27 @@ public abstract class HttpRequestHandler implements HttpHandler {
         }
     }
 
-    protected abstract void handleHttpExchange(HttpExchange httpExchange) throws IOException;
+    protected void handleHttpExchange(HttpExchange httpExchange) throws IOException {
+        writeResponse(httpExchange, HttpCode.METHOD_NOT_ALLOWED.getCode(), new ErrorResponse("Метод не поддерживается"));
+    }
 
-    protected abstract void handleGetHttpExchange(HttpExchange httpExchange) throws IOException;
+    protected void handleGetHttpExchange(HttpExchange httpExchange) throws IOException {
+        writeResponse(httpExchange, HttpCode.METHOD_NOT_ALLOWED.getCode(), new ErrorResponse("Метод не поддерживается"));
+    }
 
-    protected abstract void handlePostHttpExchange(HttpExchange httpExchange) throws IOException;
+    protected void handlePostHttpExchange(HttpExchange httpExchange) throws IOException {
+        writeResponse(httpExchange, HttpCode.METHOD_NOT_ALLOWED.getCode(), new ErrorResponse("Метод не поддерживается"));
+    }
 
-    protected abstract void handleDeleteHttpExchange(HttpExchange httpExchange) throws IOException;
+    protected void handleDeleteHttpExchange(HttpExchange httpExchange) throws IOException {
+        writeResponse(httpExchange, HttpCode.METHOD_NOT_ALLOWED.getCode(), new ErrorResponse("Метод не поддерживается"));
+    }
 
     protected <T> void writeResponse(HttpExchange httpExchange, int code, T response) throws IOException {
         String json = gson.toJson(response);
         byte[] bytes = json.getBytes(StandardCharsets.UTF_8);
+        Headers headers = httpExchange.getResponseHeaders();
+        headers.set("Content-type", "application/json");
         httpExchange.sendResponseHeaders(code, 0);
         try (OutputStream outputStream = httpExchange.getResponseBody()) {
             outputStream.write(bytes);
@@ -52,7 +64,7 @@ public abstract class HttpRequestHandler implements HttpHandler {
         }
     }
 
-    protected Map<String, String> getParamFromQuery(String query) throws IOException {
+    protected Map<String, String> getParamFromQuery(String query) {
         return Arrays.stream(query.split("&"))
                 .collect(Collectors.toMap(s -> s.split("=")[0], s -> s.split("=")[1]));
     }

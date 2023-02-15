@@ -15,16 +15,9 @@ public class Managers {
         return new InMemoryHistoryManager();
     }
 
-    public static TaskManager getDefault() {
-        return new InMemoryTaskManager();
-    }
-
-    public static TaskManager getFileBackedTaskManager(){
-        return new FileBackedTaskManager(defaultFile);
-    }
-
-    public static TaskManager getHttpTaskManager() throws IOException, InterruptedException {
+    public static TaskManager getDefault() throws IOException, InterruptedException {
         return new HttpTaskManager(defaultURL);
     }
+
 
 }

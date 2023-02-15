@@ -14,7 +14,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * Постман: https://www.getpostman.com/collections/a83b61d9e1c81c10575c
  */
 public class KVServer {
-	public static final int PORT = 8080;
+	public static final int PORT = 1301;
 	private final String apiToken;
 	private final HttpServer server;
 	private final Map<String, String> data = new HashMap<>();
@@ -37,7 +37,7 @@ public class KVServer {
 				return;
 			}
 			if ("GET".equals(h.getRequestMethod())) {
-				String key = h.getRequestURI().getPath().substring("/save/".length());
+				String key = h.getRequestURI().getPath().substring("/load/".length());
 				if (key.isEmpty()) {
 					System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
 					h.sendResponseHeaders(400, 0);
@@ -126,4 +126,10 @@ public class KVServer {
 		h.sendResponseHeaders(200, resp.length);
 		h.getResponseBody().write(resp);
 	}
+
+	public void stop(){
+		server.stop(0);
+	}
+
+
 }

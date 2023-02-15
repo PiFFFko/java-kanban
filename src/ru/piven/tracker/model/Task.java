@@ -126,9 +126,7 @@ public class Task implements Comparable<Task> {
         Task task = (Task) o;
         return name.equals(task.name)
                 && Objects.equals(description, task.description)
-                && id.equals(task.id)
-                && status == task.status
-                && type == task.type;
+                && status == task.status;
     }
 
     @Override
