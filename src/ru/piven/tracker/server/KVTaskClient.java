@@ -8,7 +8,7 @@ import java.net.http.HttpResponse;
 
 public class KVTaskClient {
 
-    private String serverURI = String.format("http://localhost:%s/", KVServer.PORT);
+    private String serverURI;
     private String apiToken;
 
     public KVTaskClient(String serverURL) throws IOException, InterruptedException {
@@ -24,10 +24,6 @@ public class KVTaskClient {
         apiToken = response.body();
     }
 
-    public String getApiToken() {
-        return apiToken;
-    }
-
     public void put(String key, String json) throws IOException, InterruptedException {
         URI uri = URI.create(serverURI + "/save/" + key + "?API_TOKEN=" + apiToken);
         HttpRequest request = HttpRequest.newBuilder()
@@ -36,7 +32,7 @@ public class KVTaskClient {
                 .build();
         HttpClient client = HttpClient.newHttpClient();
         HttpResponse.BodyHandler<String> handler = HttpResponse.BodyHandlers.ofString();
-        HttpResponse<String> response = client.send(request, handler);
+        client.send(request, handler);
     }
 
     public String load(String key) throws IOException, InterruptedException {

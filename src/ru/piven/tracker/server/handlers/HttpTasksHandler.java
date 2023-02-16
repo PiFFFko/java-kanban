@@ -9,7 +9,7 @@ import ru.piven.tracker.service.taskmanagers.TaskManager;
 
 import java.io.IOException;
 
-public class HttpTasksHandler extends HttpRequestHandler{
+public class HttpTasksHandler extends HttpRequestHandler {
 
     public HttpTasksHandler(TaskManager taskManager, Gson gson) {
         super(taskManager, gson);
@@ -18,7 +18,7 @@ public class HttpTasksHandler extends HttpRequestHandler{
     @Override
     protected void handleHttpExchange(HttpExchange httpExchange) throws IOException {
         String requestMethod = httpExchange.getRequestMethod();
-        if(!HttpMethod.GET.name().equals(requestMethod)){
+        if (!HttpMethod.GET.name().equals(requestMethod)) {
             writeResponse(httpExchange, HttpCode.METHOD_NOT_ALLOWED.getCode(), new ErrorResponse("Доступен только метод GET."));
             return;
         }
@@ -26,16 +26,8 @@ public class HttpTasksHandler extends HttpRequestHandler{
     }
 
     @Override
-    protected void handleGetHttpExchange(HttpExchange httpExchange) throws IOException{
-        writeResponse(httpExchange,HttpCode.SUCCESS.getCode(), taskManager.getPrioritizedTasks());
-    }
-
-    @Override
-    protected void handlePostHttpExchange(HttpExchange httpExchange) {
-    }
-
-    @Override
-    protected void handleDeleteHttpExchange(HttpExchange httpExchange) {
+    protected void handleGetHttpExchange(HttpExchange httpExchange) throws IOException {
+        writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), taskManager.getPrioritizedTasks());
     }
 
 }

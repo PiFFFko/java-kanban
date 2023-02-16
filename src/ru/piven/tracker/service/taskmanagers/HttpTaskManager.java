@@ -8,64 +8,73 @@ import ru.piven.tracker.model.Task;
 import ru.piven.tracker.server.KVTaskClient;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class HttpTaskManager extends FileBackedTaskManager {
 
     private KVTaskClient client;
+    private String serverURL;
     private static Gson gson = new Gson();
     private static final String TASK_KEY = "tasks";
     private static final String SUBTASK_KEY = "subtasks";
     private static final String EPIC_KEY = "epics";
     private static final String HISTORY_KEY = "history";
-
+    private static final Type taskType = new TypeToken<List<Task>>() {}.getType();
+    private static final Type subtaskType = new TypeToken<List<SubTask>>() {}.getType();
+    private static final Type epicType = new TypeToken<List<Epic>>() {}.getType();
+    private static final Type idType = new TypeToken<List<Integer>>() {}.getType();
 
     public HttpTaskManager(String serverURL) throws InterruptedException, IOException {
         super(null);
+        this.serverURL = serverURL;
         client = new KVTaskClient(serverURL);
+        loadFromServer();
     }
 
     @Override
     protected void save() {
         try {
-            client.put("tasks", gson.toJson(this.getAllTasks()));
-            client.put("epics", gson.toJson(this.getAllEpics()));
-            client.put("subtasks", gson.toJson(this.getAllSubTasks()));
-            client.put("history", gson.toJson(this.getHistory()));
+            client.put(TASK_KEY, gson.toJson(this.getAllTasks()));
+            client.put(EPIC_KEY, gson.toJson(this.getAllEpics()));
+            client.put(SUBTASK_KEY, gson.toJson(this.getAllSubTasks()));
+            client.put(HISTORY_KEY, gson.toJson(this.getHistory().stream().map(Task::getId).collect(Collectors.toList())));
         } catch (InterruptedException | IOException e) {
             throw new RuntimeException("Во время выполнения запроса произошла ошибка.", e);
         }
     }
 
 
-    public static HttpTaskManager loadFromServer(String serverURL) throws IOException, InterruptedException {
-        KVTaskClient client = new KVTaskClient(serverURL);
-        HttpTaskManager taskManager = new HttpTaskManager(serverURL);
-        Collection<Task> tasks = gson.fromJson(client.load(TASK_KEY), new TypeToken<List<Task>>() {
-        }.getType());
-        Collection<Epic> epics = gson.fromJson(client.load(EPIC_KEY), new TypeToken<List<Epic>>() {
-        }.getType());
-        Collection<SubTask> subTasks = gson.fromJson(client.load(SUBTASK_KEY), new TypeToken<List<SubTask>>() {
-        }.getType());
-        Collection<Task> history = gson.fromJson(client.load(HISTORY_KEY), new TypeToken<List<Task>>() {
-        }.getType());
-        for (Task task : tasks) {
-            taskManager.addTask(task.getId(), task);
+    private void loadFromServer() throws IOException, InterruptedException {
+        Optional<Collection<Task>> tasks = Optional.ofNullable(gson.fromJson(client.load(TASK_KEY), taskType));
+        Optional<Collection<Epic>> epics = Optional.ofNullable(gson.fromJson(client.load(EPIC_KEY), epicType));
+        Optional<Collection<SubTask>> subTasks = Optional.ofNullable(gson.fromJson(client.load(SUBTASK_KEY), subtaskType));
+        Optional<Collection<Integer>> history = Optional.ofNullable(gson.fromJson(client.load(HISTORY_KEY), idType));
+        if (tasks.isPresent()){
+            for (Task task : tasks.get()) {
+                this.addTask(task.getId(), task);
+            }
         }
-        for (Epic epic : epics) {
-            taskManager.addEpic(epic.getId(), epic);
+        if (epics.isPresent()){
+            for (Epic epic : epics.get()) {
+                this.addEpic(epic.getId(), epic);
+            }
         }
-        for (SubTask subTask : subTasks){
-            taskManager.addSubTask(subTask.getId(),subTask,subTask.getEpicId());
+        if (subTasks.isPresent()){
+            for (SubTask subTask : subTasks.get()){
+                this.addSubTask(subTask.getId(),subTask,subTask.getEpicId());
+            }
         }
-        for(Task task: history){
-            int id = task.getId();
-            taskManager.getTask(id);
-            taskManager.getEpic(id);
-            taskManager.getSubTask(id);
+        if(history.isPresent()){
+            for(Integer id: history.get()){
+                this.getTask(id);
+                this.getEpic(id);
+                this.getSubTask(id);
+            }
         }
-        return taskManager;
     }
-
 }

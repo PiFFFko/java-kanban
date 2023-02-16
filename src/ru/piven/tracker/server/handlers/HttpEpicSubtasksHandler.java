@@ -40,13 +40,4 @@ public class HttpEpicSubtasksHandler extends HttpRequestHandler {
             writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), taskManager.getEpicSubTasks(epicId.get()));
     }
 
-    @Override
-    protected void handlePostHttpExchange(HttpExchange httpExchange) throws IOException {
-
-    }
-
-    @Override
-    protected void handleDeleteHttpExchange(HttpExchange httpExchange) throws IOException {
-
-    }
 }

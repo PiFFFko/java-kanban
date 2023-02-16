@@ -69,5 +69,4 @@ public abstract class HttpRequestHandler implements HttpHandler {
                 .collect(Collectors.toMap(s -> s.split("=")[0], s -> s.split("=")[1]));
     }
 
-
 }

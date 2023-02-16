@@ -2,6 +2,7 @@ package ru.piven.tracker.server;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
+import ru.piven.tracker.server.enums.HttpCode;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -28,25 +29,29 @@ public class KVServer {
 	}
 
 	private void load(HttpExchange h) throws IOException {
-		// TODO Добавьте получение значения по ключу
 		try {
 			System.out.println("\n/load");
 			if (!hasAuth(h)) {
 				System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
-				h.sendResponseHeaders(403, 0);
+				h.sendResponseHeaders(HttpCode.FORBIDDEN.getCode(), 0);
 				return;
 			}
 			if ("GET".equals(h.getRequestMethod())) {
 				String key = h.getRequestURI().getPath().substring("/load/".length());
 				if (key.isEmpty()) {
-					System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
-					h.sendResponseHeaders(400, 0);
+					System.out.println("Key для сохранения пустой. key указывается в пути: /load/{key}");
+					h.sendResponseHeaders(HttpCode.BAD_REQUEST.getCode(), 0);
+					return;
+				}
+				if (!data.containsKey(key)){
+					System.out.println("Такого ключа нет на KVServer'e.");
+					h.sendResponseHeaders(HttpCode.NOT_FOUND.getCode(),0);
 					return;
 				}
 				sendText(h,data.get(key));
 			} else {
-				System.out.println("/save ждёт GET-запрос, а получил: " + h.getRequestMethod());
-				h.sendResponseHeaders(405, 0);
+				System.out.println("/load ждёт GET-запрос, а получил: " + h.getRequestMethod());
+				h.sendResponseHeaders(HttpCode.METHOD_NOT_ALLOWED.getCode(), 0);
 			}
 		} finally {
 			h.close();
@@ -58,28 +63,28 @@ public class KVServer {
 			System.out.println("\n/save");
 			if (!hasAuth(h)) {
 				System.out.println("Запрос неавторизован, нужен параметр в query API_TOKEN со значением апи-ключа");
-				h.sendResponseHeaders(403, 0);
+				h.sendResponseHeaders(HttpCode.FORBIDDEN.getCode(), 0);
 				return;
 			}
 			if ("POST".equals(h.getRequestMethod())) {
 				String key = h.getRequestURI().getPath().substring("/save/".length());
 				if (key.isEmpty()) {
 					System.out.println("Key для сохранения пустой. key указывается в пути: /save/{key}");
-					h.sendResponseHeaders(400, 0);
+					h.sendResponseHeaders(HttpCode.BAD_REQUEST.getCode(), 0);
 					return;
 				}
 				String value = readText(h);
 				if (value.isEmpty()) {
 					System.out.println("Value для сохранения пустой. value указывается в теле запроса");
-					h.sendResponseHeaders(400, 0);
+					h.sendResponseHeaders(HttpCode.BAD_REQUEST.getCode(), 0);
 					return;
 				}
 				data.put(key, value);
 				System.out.println("Значение для ключа " + key + " успешно обновлено!");
-				h.sendResponseHeaders(200, 0);
+				h.sendResponseHeaders(HttpCode.SUCCESS.getCode(), 0);
 			} else {
 				System.out.println("/save ждёт POST-запрос, а получил: " + h.getRequestMethod());
-				h.sendResponseHeaders(405, 0);
+				h.sendResponseHeaders(HttpCode.METHOD_NOT_ALLOWED.getCode(), 0);
 			}
 		} finally {
 			h.close();
@@ -93,7 +98,7 @@ public class KVServer {
 				sendText(h, apiToken);
 			} else {
 				System.out.println("/register ждёт GET-запрос, а получил " + h.getRequestMethod());
-				h.sendResponseHeaders(405, 0);
+				h.sendResponseHeaders(HttpCode.METHOD_NOT_ALLOWED.getCode(), 0);
 			}
 		} finally {
 			h.close();
@@ -123,7 +128,7 @@ public class KVServer {
 	protected void sendText(HttpExchange h, String text) throws IOException {
 		byte[] resp = text.getBytes(UTF_8);
 		h.getResponseHeaders().add("Content-Type", "application/json");
-		h.sendResponseHeaders(200, resp.length);
+		h.sendResponseHeaders(HttpCode.SUCCESS.getCode(), resp.length);
 		h.getResponseBody().write(resp);
 	}
 

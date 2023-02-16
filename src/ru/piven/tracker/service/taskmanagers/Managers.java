@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 
 public class Managers {
 
-    private static final Path defaultFile = Paths.get(System.getProperty("user.dir"), "data", "data.csv");
     private static final String defaultURL = "http://localhost";
     public static HistoryManager getDefaultHistory() {
         return new InMemoryHistoryManager();

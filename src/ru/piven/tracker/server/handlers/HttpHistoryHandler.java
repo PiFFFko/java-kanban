@@ -31,13 +31,4 @@ public class HttpHistoryHandler extends HttpRequestHandler {
         writeResponse(httpExchange, HttpCode.SUCCESS.getCode(), taskManager.getHistory());
     }
 
-    @Override
-    protected void handlePostHttpExchange(HttpExchange httpExchange) {
-
-    }
-
-    @Override
-    protected void handleDeleteHttpExchange(HttpExchange httpExchange) {
-
-    }
 }
